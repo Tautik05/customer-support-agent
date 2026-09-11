@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NovaDesk AI — Customer Support Resolution Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body class="theme-dark">
+  <!-- Top Global Header / Role Switcher -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="logo-title">
+          <span class="brand-name">NovaDesk <span>AI</span></span>
+          <span class="brand-tag">Support Resolution Engine</span>
+        </div>
+      </div>
+
+      <!-- Demo Role Switcher -->
+      <div class="role-switcher">
+        <button id="role-btn-customer" class="role-btn" onclick="navigateTo('customer')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Customer Portal
+        </button>
+        <button id="role-btn-agent" class="role-btn active" onclick="navigateTo('agent')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M14 9h4"/><path d="M14 15h4"/></svg>
+          Support Operations Dashboard
+        </button>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="system-status-pill">
+        <span class="pulse-dot"></span>
+        <span class="status-label">Neon PostgreSQL + LangGraph</span>
+        <span class="model-tag" id="header-model-tag">Qwen 3.8 27B</span>
+      </div>
+      <button class="btn btn-sm btn-ghost" onclick="resetDatabaseSeed()" title="Re-seed database records">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+        Reset Seed Data
+      </button>
+      <a href="/docs" target="_blank" class="btn btn-sm btn-outline">API Docs</a>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <!-- ==========================================
+         VIEW 1: CUSTOMER PORTAL
+         ========================================== -->
+    <main id="view-customer" class="view-container">
+      
+      <!-- State A: Customer Login / Email Screen -->
+      <div id="customer-auth-view" class="customer-auth-screen hidden">
+        <div class="auth-card">
+          <div class="auth-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <h2>Customer Support Portal</h2>
+          <p class="auth-subtitle">Sign in with your email to submit support requests, track live resolutions, and receive direct email responses from our AI support system.</p>
+
+          <form id="customer-login-form" onsubmit="handleCustomerLogin(event)" class="auth-form">
+            <div class="form-group">
+              <label for="cust-login-email-input">Your Email Address</label>
+              <div class="input-with-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <input type="email" id="cust-login-email-input" required placeholder="name@example.com (e.g. tt@gmail.com)" />
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg auth-submit-btn">
+              <span>Sign In to Support Portal</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+          </form>
+
+          <div class="demo-accounts-section">
+            <span class="demo-title">Or click a demo account to instant-test:</span>
+            <div class="demo-account-chips">
+              <button type="button" class="demo-chip" onclick="quickLoginCustomer('alice@example.com')">
+                <span class="chip-avatar">AS</span>
+                <span class="chip-text">Alice Smith <em>(Double Charge)</em></span>
+              </button>
+              <button type="button" class="demo-chip" onclick="quickLoginCustomer('bob@example.com')">
+                <span class="chip-avatar">BJ</span>
+                <span class="chip-text">Bob Jones <em>(Damaged Item)</em></span>
+              </button>
+              <button type="button" class="demo-chip" onclick="quickLoginCustomer('charlie@example.com')">
+                <span class="chip-avatar">CB</span>
+                <span class="chip-text">Charlie Brown <em>(Expired Refund)</em></span>
+              </button>
+              <button type="button" class="demo-chip" onclick="quickLoginCustomer('tt@gmail.com')">
+                <span class="chip-avatar">TT</span>
+                <span class="chip-text">tt@gmail.com <em>(Custom Guest)</em></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- State B: Authenticated Customer Help Desk -->
+      <div id="customer-main-view" class="customer-container">
+        
+        <!-- Customer Authenticated Header Strip -->
+        <div class="customer-user-bar">
+          <div class="customer-user-info">
+            <div class="cust-avatar" id="cust-bar-avatar">AS</div>
+            <div>
+              <div class="cust-name-line">
+                <strong id="cust-bar-name">Alice Smith</strong>
+                <span class="badge badge-success" id="cust-bar-tier">Standard Customer</span>
+              </div>
+              <div class="cust-email-text" id="cust-bar-email">alice@example.com</div>
+            </div>
+          </div>
+          <div class="customer-user-actions">
+            <button class="btn btn-sm btn-ghost" onclick="customerSignOut()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Switch Account / Sign Out
+            </button>
+          </div>
+        </div>
+
+        <!-- Customer Hero -->
+        <div class="customer-hero">
+          <div class="customer-hero-content">
+            <span class="hero-badge">AI-Powered Support Help Desk</span>
+            <h1>How can we assist you today?</h1>
+            <p>Submit a new inquiry or view real-time updates and resolutions sent directly by our AI support team.</p>
+            <div class="customer-hero-actions">
+              <button class="btn btn-primary btn-lg" onclick="openCustomerTicketModal()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Create Support Request
+              </button>
+              <button class="btn btn-secondary btn-lg" onclick="loadCustomerTickets()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                Refresh My Tickets
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer Main Section: Ticket List & Ticket Detail -->
+        <div class="customer-content-grid">
+          <!-- Left: Recent Tickets -->
+          <div class="customer-tickets-card card">
+            <div class="card-header">
+              <h3>Your Support Requests</h3>
+              <span class="badge" id="cust-ticket-count-badge">0 Tickets</span>
+            </div>
+            <div id="customer-ticket-list" class="customer-ticket-list">
+              <!-- Loaded via JavaScript -->
+              <div class="loading-spinner-box">Loading requests...</div>
+            </div>
+          </div>
+
+          <!-- Right: Customer Ticket Detail View -->
+          <div class="customer-detail-card card" id="customer-ticket-detail">
+            
+            <div class="empty-state" id="customer-empty-detail">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="11" y2="17"/></svg>
+              <h4>No ticket selected</h4>
+              <p>Select a support request from the list on the left or create a new request.</p>
+            </div>
+
+            <div id="customer-detail-content" class="hidden">
+              <div class="customer-ticket-header">
+                <div class="ticket-title-row">
+                  <span class="ticket-id-tag" id="cust-det-id">#TKT-000</span>
+                  <span class="badge" id="cust-det-status">Under Review</span>
+                  <span class="badge badge-outline" id="cust-det-priority">High Priority</span>
+                </div>
+                <h2 id="cust-det-subject">Double charge on subscription</h2>
+                <div class="ticket-meta-date" id="cust-det-date">Submitted on September 11, 2026</div>
+              </div>
+
+              <!-- Customer Message Box -->
+              <div class="customer-message-bubble">
+                <div class="bubble-header">
+                  <strong>Your Submitted Message:</strong>
+                </div>
+                <p id="cust-det-description">I was charged twice for my subscription yesterday...</p>
+              </div>
+
+              <!-- Live AI Processing Banner (Active during LangGraph execution) -->
+              <div id="cust-processing-banner" class="customer-processing-alert hidden">
+                <div class="pulse-icon-spinner"></div>
+                <div class="proc-text">
+                  <strong>🤖 AI Support Agent is resolving your request...</strong>
+                  <span>Analyzing account records, verifying business rules, and preparing your resolution email.</span>
+                </div>
+              </div>
+
+              <!-- Clean Customer-Facing Progress Timeline -->
+              <div class="customer-timeline-section">
+                <h4>Resolution Progress</h4>
+                <div class="customer-timeline">
+                  <div class="timeline-step passed" id="cust-step-submitted">
+                    <div class="step-dot">✓</div>
+                    <div class="step-info">
+                      <strong>Submitted</strong>
+                      <span>Request received</span>
+                    </div>
+                  </div>
+                  <div class="timeline-bar passed" id="cust-bar-1"></div>
+                  <div class="timeline-step active" id="cust-step-review">
+                    <div class="step-dot">2</div>
+                    <div class="step-info">
+                      <strong>AI Review</strong>
+                      <span>Verifying account data</span>
+                    </div>
+                  </div>
+                  <div class="timeline-bar" id="cust-bar-2"></div>
+                  <div class="timeline-step" id="cust-step-approval">
+                    <div class="step-dot">3</div>
+                    <div class="step-info">
+                      <strong>Specialist Review</strong>
+                      <span>Sign-off on actions</span>
+                    </div>
+                  </div>
+                  <div class="timeline-bar" id="cust-bar-3"></div>
+                  <div class="timeline-step" id="cust-step-resolved">
+                    <div class="step-dot">4</div>
+                    <div class="step-info">
+                      <strong>Resolved</strong>
+                      <span>Email sent</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Customer Review Notice if human approval is pending -->
+                <div class="customer-review-notice hidden" id="cust-approval-notice">
+                  <div class="notice-icon">ℹ️</div>
+                  <div class="notice-text">
+                    <strong>Action Pending Specialist Authorization</strong>
+                    <p>Our AI system has analyzed your account and prepared the resolution. A customer support supervisor is currently authorizing the action. You will receive your official email confirmation once approved.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- State 1: Awaiting Agent Processing Notice -->
+              <div class="customer-pending-card" id="cust-pending-box">
+                <div class="pending-icon">⏳</div>
+                <div class="pending-content">
+                  <h4>Request Submitted & Queued</h4>
+                  <p>Your support request has been logged in our system. Our support team & AI resolution agent are reviewing your account records. When processed, your official resolution email will appear directly below.</p>
+                </div>
+              </div>
+
+              <!-- State 2: Customer-Facing Official Email Message Card (Shown after agent processes request) -->
+              <div class="customer-email-card hidden" id="cust-response-box">
+                <div class="email-card-header">
+                  <div class="email-sender-meta">
+                    <div class="sender-avatar">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <div class="sender-details">
+                      <div class="sender-name-row">
+                        <strong>NovaDesk AI Support Resolution Desk</strong>
+                        <span class="sender-email">&lt;support@novadesk.ai&gt;</span>
+                      </div>
+                      <div class="email-recipient-line">
+                        To: <span id="cust-email-to">you@example.com</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="email-timestamp-badge" id="cust-email-time">
+                    Delivered
+                  </div>
+                </div>
+
+                <div class="email-card-subject">
+                  <span class="subject-label">Subject:</span>
+                  <span id="cust-email-subject">Resolution for your inquiry</span>
+                </div>
+
+                <!-- Action Receipt Callout (e.g. Refund processed) -->
+                <div id="cust-action-receipt" class="action-receipt-banner hidden">
+                  <div class="receipt-icon">✓</div>
+                  <div class="receipt-info" id="cust-receipt-text">
+                    Action executed successfully.
+                  </div>
+                </div>
+
+                <!-- Email Formatted Content -->
+                <div class="email-card-body" id="cust-resp-body">
+                  <!-- Resolution email content -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ==========================================
+         VIEW 2: SUPPORT OPERATIONS AGENT DASHBOARD
+         ========================================== -->
+    <main id="view-agent" class="view-container active">
+      <!-- Agent Sub-Navigation Bar -->
+      <div class="agent-subnav">
+        <div class="agent-nav-links">
+          <button class="agent-nav-item active" id="agent-nav-tickets" onclick="switchAgentTab('tickets')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/></svg>
+            Resolution Workspace
+          </button>
+          <button class="agent-nav-item" id="agent-nav-customers" onclick="switchAgentTab('customers')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Customer Database
+          </button>
+          <button class="agent-nav-item" id="agent-nav-metrics" onclick="switchAgentTab('metrics')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            System Evaluation & KPIs
+          </button>
+        </div>
+
+        <div class="quick-demo-presets">
+          <span class="preset-label">Demo Scenario:</span>
+          <button class="chip chip-primary" onclick="loadDemoScenario('alice')">⚡ Alice (Duplicate Charge)</button>
+          <button class="chip chip-secondary" onclick="loadDemoScenario('bob')">⚡ Bob (Damaged Refund)</button>
+          <button class="chip chip-secondary" onclick="loadDemoScenario('charlie')">⚡ Charlie (>30d Expired)</button>
+          <button class="chip chip-secondary" onclick="loadDemoScenario('diana')">⚡ Diana (Lost Package)</button>
+        </div>
+      </div>
+
+      <!-- AGENT TAB 1: 3-COLUMN WORKSPACE -->
+      <section id="agent-tab-tickets" class="agent-tab-pane active">
+        <!-- High-Level Operational Metrics Bar -->
+        <div class="kpi-metrics-strip">
+          <div class="kpi-pill">
+            <span class="kpi-num" id="kpi-total">0</span>
+            <span class="kpi-label">Total Tickets</span>
+          </div>
+          <div class="kpi-pill">
+            <span class="kpi-num text-warning" id="kpi-pending-approval">0</span>
+            <span class="kpi-label">Awaiting Approval</span>
+          </div>
+          <div class="kpi-pill">
+            <span class="kpi-num text-info" id="kpi-in-progress">0</span>
+            <span class="kpi-label">In Progress</span>
+          </div>
+          <div class="kpi-pill">
+            <span class="kpi-num text-success" id="kpi-resolved">0</span>
+            <span class="kpi-label">Resolved</span>
+          </div>
+          <div class="kpi-pill">
+            <span class="kpi-num text-danger" id="kpi-escalated">0</span>
+            <span class="kpi-label">Escalated</span>
+          </div>
+        </div>
+
+        <!-- 3-Column Layout -->
+        <div class="three-column-grid">
+          <!-- COLUMN 1: TICKET QUEUE LIST -->
+          <div class="col-ticket-queue card">
+            <div class="queue-header">
+              <div class="queue-title-row">
+                <h3>Ticket Queue</h3>
+                <button class="btn btn-xs btn-outline" onclick="loadAgentTicketQueue()">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                  Sync
+                </button>
+              </div>
+              <div class="search-box">
+                <input type="text" id="ticket-search-input" placeholder="Search by customer, subject, ID..." oninput="filterTicketQueue()" />
+              </div>
+              <div class="filter-pills">
+                <select id="filter-status" onchange="filterTicketQueue()">
+                  <option value="">All Statuses</option>
+                  <option value="open">Open</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="pending_approval">Pending Approval</option>
+                  <option value="resolved">Resolved</option>
+                  <option value="escalated">Escalated</option>
+                </select>
+                <select id="filter-priority" onchange="filterTicketQueue()">
+                  <option value="">All Priorities</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="urgent">Urgent</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="ticket-queue-list" id="ticket-queue-container">
+              <div class="loading-spinner-box">Loading ticket queue...</div>
+            </div>
+          </div>
+
+          <!-- COLUMN 2: TICKET DETAILS & CUSTOMER 360 CONTEXT -->
+          <div class="col-ticket-details card">
+            <div class="empty-state" id="agent-ticket-empty">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <h4>Select a ticket from the queue</h4>
+              <p>Choose a ticket to inspect context and execute the AI resolution workflow.</p>
+            </div>
+
+            <div id="agent-ticket-loaded" class="hidden">
+              <!-- Ticket Header Row -->
+              <div class="detail-header-block">
+                <div class="detail-top-row">
+                  <span class="ticket-tag" id="agent-tkt-id">#tkt_101</span>
+                  <div class="tag-group">
+                    <span class="badge" id="agent-tkt-status">OPEN</span>
+                    <span class="badge badge-outline" id="agent-tkt-priority">HIGH</span>
+                  </div>
+                </div>
+                <h3 id="agent-tkt-subject">Double charge on my monthly subscription</h3>
+                <div class="meta-subrow">
+                  <span><strong>Customer:</strong> <span id="agent-tkt-custname">Alice Smith</span> (<span id="agent-tkt-custemail">alice@example.com</span>)</span>
+                  <span id="agent-tkt-created">Created 2 hours ago</span>
+                </div>
+              </div>
+
+              <!-- Customer Original Message -->
+              <div class="section-box">
+                <div class="section-title">Customer Request</div>
+                <div class="quote-text" id="agent-tkt-description">
+                  "I was charged twice for my subscription yesterday ($49.00 each). Please refund the duplicate payment."
+                </div>
+              </div>
+
+              <!-- Customer 360 Context Panel (Backend Records) -->
+              <div class="section-box customer-context-accordion">
+                <div class="section-title-with-badge">
+                  <span>Customer 360 Context</span>
+                  <span class="badge badge-info" id="agent-cust-tier">Standard Tier</span>
+                </div>
+
+                <!-- Context Tabs -->
+                <div class="context-tab-bar">
+                  <button class="c-tab-btn active" onclick="switchContextTab('payments')">Payments (<span id="cnt-payments">0</span>)</button>
+                  <button class="c-tab-btn" onclick="switchContextTab('orders')">Orders (<span id="cnt-orders">0</span>)</button>
+                  <button class="c-tab-btn" onclick="switchContextTab('subs')">Subscriptions (<span id="cnt-subs">0</span>)</button>
+                  <button class="c-tab-btn" onclick="switchContextTab('refunds')">Refunds (<span id="cnt-refunds">0</span>)</button>
+                </div>
+
+                <div class="context-tab-content">
+                  <!-- Tab: Payments -->
+                  <div id="ctx-tab-payments" class="ctx-pane active">
+                    <div class="record-mini-list" id="ctx-list-payments"></div>
+                  </div>
+                  <!-- Tab: Orders -->
+                  <div id="ctx-tab-orders" class="ctx-pane">
+                    <div class="record-mini-list" id="ctx-list-orders"></div>
+                  </div>
+                  <!-- Tab: Subscriptions -->
+                  <div id="ctx-tab-subs" class="ctx-pane">
+                    <div class="record-mini-list" id="ctx-list-subs"></div>
+                  </div>
+                  <!-- Tab: Refunds -->
+                  <div id="ctx-tab-refunds" class="ctx-pane">
+                    <div class="record-mini-list" id="ctx-list-refunds"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Bar to trigger AI Resolution -->
+              <div class="ticket-action-bar">
+                <button class="btn btn-primary btn-block" id="btn-run-agent-workflow" onclick="runResolutionWorkflow()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  Execute AI Resolution Review
+                </button>
+              </div>
+
+              <!-- Operator Manual Response Composer -->
+              <div class="operator-manual-composer card" id="operator-manual-composer">
+                <div class="composer-header">
+                  <span class="composer-title">✍️ Or Write Custom Response</span>
+                </div>
+                <div class="composer-body" id="composer-body-content">
+                  <textarea id="operator-custom-reply-text" rows="4" placeholder="Write custom response directly to the customer..."></textarea>
+                  <div class="composer-actions">
+                    <button class="btn btn-sm btn-success" id="btn-send-custom-reply" onclick="sendOperatorCustomReply()">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                      Send Custom Response & Resolve
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- COLUMN 3: AI WORKFLOW, MCP TOOLS & HUMAN APPROVAL -->
+          <div class="col-ai-workflow card">
+            <div class="workflow-col-header">
+              <h3>AI Resolution Workflow</h3>
+              <span class="badge badge-neutral" id="wf-badge-status">IDLE</span>
+            </div>
+
+            <!-- HUMAN IN THE LOOP APPROVAL CARD -->
+            <div class="human-approval-card hidden" id="wf-approval-card">
+              <div class="approval-card-banner">
+                <div class="warning-icon-badge">⚠️</div>
+                <div class="banner-text">
+                  <h4>Consequential Action Requires Approval</h4>
+                  <p>Financial modification flagged by deterministic safety policy.</p>
+                </div>
+              </div>
+
+              <div class="proposed-action-summary">
+                <div class="summary-row">
+                  <span class="label">Action:</span>
+                  <span class="val font-mono" id="appr-action-type">create_refund</span>
+                </div>
+                <div class="summary-row">
+                  <span class="label">Amount:</span>
+                  <span class="val text-success font-bold" id="appr-action-amount">$49.00 USD</span>
+                </div>
+                <div class="summary-row">
+                  <span class="label">Target:</span>
+                  <span class="val font-mono" id="appr-action-target">pay_102 (Visa ...4242)</span>
+                </div>
+                <div class="summary-row">
+                  <span class="label">Rule Verification:</span>
+                  <span class="val text-info" id="appr-action-rule">Verified duplicate charge within 12m</span>
+                </div>
+              </div>
+
+              <!-- AI Generated Response Draft Preview -->
+              <div class="approval-draft-preview" id="appr-draft-container">
+                <div class="draft-preview-header">
+                  <span class="draft-badge">AI Customer Draft Preview</span>
+                  <span class="draft-hint">Dispatches on approval</span>
+                </div>
+                <div class="draft-preview-subject" id="appr-draft-subject">Subject: Update on your refund request</div>
+                <div class="draft-preview-body" id="appr-draft-body">Loading response draft...</div>
+              </div>
+
+              <div class="approval-btn-group">
+                <button class="btn btn-success" onclick="confirmHumanDecision('APPROVED')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  Approve & Send
+                </button>
+                <button class="btn btn-secondary" onclick="openModifyModal()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  Modify...
+                </button>
+                <button class="btn btn-danger" onclick="openRejectModal()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  Reject
+                </button>
+              </div>
+            </div>
+
+
+            <!-- Structured Workflow Step Pipeline -->
+            <div class="workflow-pipeline" id="workflow-pipeline">
+              <!-- Step 1: Classification -->
+              <div class="pipeline-step" id="pstep-classify">
+                <div class="step-status-icon">○</div>
+                <div class="step-content">
+                  <div class="step-title">Intent Classification</div>
+                  <div class="step-details" id="pstep-classify-details">Categorizes intent, urgency & sentiment</div>
+                </div>
+              </div>
+
+              <!-- Step 2: Entity Extraction -->
+              <div class="pipeline-step" id="pstep-extract">
+                <div class="step-status-icon">○</div>
+                <div class="step-content">
+                  <div class="step-title">Entity Extraction</div>
+                  <div class="step-details" id="pstep-extract-details">Extracts customer email, order/sub IDs</div>
+                </div>
+              </div>
+
+              <!-- Step 3: MCP Context Lookup -->
+              <div class="pipeline-step" id="pstep-lookup">
+                <div class="step-status-icon">○</div>
+                <div class="step-content">
+                  <div class="step-title">MCP Context Retrieval</div>
+                  <div class="step-details" id="pstep-lookup-details">Queries PostgreSQL system of record</div>
+                </div>
+              </div>
+
+              <!-- Step 4: Deterministic Business Rules -->
+              <div class="pipeline-step" id="pstep-rules">
+                <div class="step-status-icon">○</div>
+                <div class="step-content">
+                  <div class="step-title">Deterministic Rule Evaluation</div>
+                  <div class="step-details" id="pstep-rules-details">Evaluates duplicate charge & 30-day return policy</div>
+                </div>
+              </div>
+
+              <!-- Step 5: Resolution Decision -->
+              <div class="pipeline-step" id="pstep-decide">
+                <div class="step-status-icon">○</div>
+                <div class="step-content">
+                  <div class="step-title">Resolution Decision</div>
+                  <div class="step-details" id="pstep-decide-details">Routes to Action Approval, Direct Resolve, or Escalation</div>
+                </div>
+              </div>
+
+              <!-- Step 6: Human Approval -->
+              <div class="pipeline-step" id="pstep-approval">
+                <div class="step-status-icon">○</div>
+                <div class="step-content">
+                  <div class="step-title">Human-in-the-Loop Checkpoint</div>
+                  <div class="step-details" id="pstep-approval-details">Operator authorization gate for consequential actions</div>
+                </div>
+              </div>
+
+              <!-- Step 7: Tool Action Execution -->
+              <div class="pipeline-step" id="pstep-execute">
+                <div class="step-status-icon">○</div>
+                <div class="step-content">
+                  <div class="step-title">Action Execution (MCP)</div>
+                  <div class="step-details" id="pstep-execute-details">Executes create_refund or cancel_sub mutation</div>
+                </div>
+              </div>
+
+              <!-- Step 8: Generate Response & Finalize -->
+              <div class="pipeline-step" id="pstep-response">
+                <div class="step-status-icon">○</div>
+                <div class="step-content">
+                  <div class="step-title">Response Generation & Ticket Update</div>
+                  <div class="step-details" id="pstep-response-details">Drafts customer message & updates database</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tool Activity Section (MCP Logs) -->
+            <div class="tool-activity-card">
+              <div class="section-title">Model Context Protocol (MCP) Activity</div>
+              <div class="tool-log-list" id="tool-activity-logs">
+                <div class="empty-tool-log">No tool activity yet. Run workflow to observe MCP calls.</div>
+              </div>
+            </div>
+
+            <!-- Final Customer Response Review -->
+            <div class="final-response-box hidden" id="agent-final-response-box">
+              <div class="section-title">Dispatched Customer Response</div>
+              <div class="response-draft-body" id="agent-response-text"></div>
+              <div class="response-btn-row">
+                <span class="badge badge-success">✓ Email Sent to Customer</span>
+                <button class="btn btn-sm btn-outline" onclick="copyCustomerResponse()">Copy Response</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- AGENT TAB 2: CUSTOMERS DIRECTORY -->
+      <section id="agent-tab-customers" class="agent-tab-pane">
+        <div class="card">
+          <div class="card-header">
+            <h3>Customer System of Record</h3>
+            <button class="btn btn-sm btn-secondary" onclick="loadCustomersTable()">Refresh</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table" id="customers-table">
+              <thead>
+                <tr>
+                  <th>Customer ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Tier</th>
+                  <th>Status</th>
+                  <th>Subscriptions</th>
+                  <th>Orders</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="customers-table-body">
+                <tr><td colspan="8" class="text-center">Loading customers from PostgreSQL...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- AGENT TAB 3: EVALUATION & BENCHMARKS -->
+      <section id="agent-tab-metrics" class="agent-tab-pane">
+        <div class="card eval-hero-card">
+          <div class="eval-hero-flex">
+            <div>
+              <div class="eval-badge">Offline Evaluation Suite</div>
+              <h2>Agentic AI Accuracy & Business Rule Compliance</h2>
+              <p>Automated evaluation running against a golden dataset to evaluate Intent Classification, Resolution Routing, Deterministic Rule Compliance, and Human Approval Gating.</p>
+            </div>
+            <button class="btn btn-primary btn-lg" id="btn-eval-runner" onclick="runBenchmarkEvaluation()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Execute 7-Case Benchmark Suite
+            </button>
+          </div>
+
+          <!-- Evaluation Metric Cards -->
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <span class="m-label">Intent Accuracy</span>
+              <span class="m-val" id="metric-intent">--</span>
+              <span class="m-sub">Semantic Understanding</span>
+            </div>
+            <div class="metric-card">
+              <span class="m-label">Routing Precision</span>
+              <span class="m-val" id="metric-routing">--</span>
+              <span class="m-sub">Path Correctness</span>
+            </div>
+            <div class="metric-card">
+              <span class="m-label">Rule Compliance</span>
+              <span class="m-val text-success" id="metric-compliance">100.0%</span>
+              <span class="m-sub">Zero Hallucination</span>
+            </div>
+            <div class="metric-card">
+              <span class="m-label">Approval Gating</span>
+              <span class="m-val text-success" id="metric-gating">100.0%</span>
+              <span class="m-sub">Safety Compliance</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mt-4">
+          <div class="card-header">
+            <h3>Benchmark Case Results</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table" id="benchmark-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Scenario Name</th>
+                  <th>Expected Intent</th>
+                  <th>Actual Intent</th>
+                  <th>Expected Route</th>
+                  <th>Actual Route</th>
+                  <th>Action</th>
+                  <th>Approval Gated</th>
+                  <th>Result</th>
+                </tr>
+              </thead>
+              <tbody id="benchmark-table-body">
+                <tr><td colspan="9" class="text-center">Click "Execute 7-Case Benchmark Suite" to run test cases.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ==========================================
+       MODALS
+       ========================================== -->
+  <!-- 1. Customer Create Ticket Modal -->
+  <div class="modal-overlay hidden" id="modal-create-ticket">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Submit a Customer Support Request</h3>
+        <button class="modal-close-btn" onclick="closeCustomerTicketModal()">✕</button>
+      </div>
+      <div class="quick-preset-chips">
+        <label>Try Example Scenarios:</label>
+        <div class="chip-row">
+          <button type="button" class="chip" onclick="fillCustomerForm('duplicate')">Duplicate Charge ($49.00)</button>
+          <button type="button" class="chip" onclick="fillCustomerForm('damaged')">Damaged Headphones</button>
+          <button type="button" class="chip" onclick="fillCustomerForm('expired')">Expired Return (>30d)</button>
+          <button type="button" class="chip" onclick="fillCustomerForm('lost')">Lost Parcel (12d)</button>
+        </div>
+      </div>
+      <form id="customer-new-ticket-form" onsubmit="submitCustomerTicket(event)">
+        <div class="form-group">
+          <label>Your Email</label>
+          <input type="email" id="cust-modal-email" required placeholder="alice@example.com" />
+        </div>
+        <div class="form-group">
+          <label>Subject</label>
+          <input type="text" id="cust-modal-subject" required placeholder="Double charge on my monthly subscription" />
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="cust-modal-category">
+            <option value="billing">Billing & Subscriptions</option>
+            <option value="shipping">Shipping & Delivery</option>
+            <option value="cancellation">Cancellation</option>
+            <option value="technical">Technical Support</option>
+            <option value="general">General Inquiry</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Describe your issue</label>
+          <textarea id="cust-modal-desc" rows="4" required placeholder="Please describe what happened in detail..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeCustomerTicketModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-cust-submit">Submit Support Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Modify Action Modal -->
+  <div class="modal-overlay hidden" id="modal-modify-action">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Modify Proposed Action</h3>
+        <button class="modal-close-btn" onclick="closeModifyModal()">✕</button>
+      </div>
+      <form id="modify-action-form" onsubmit="submitModifiedApproval(event)">
+        <div class="form-group">
+          <label>Original Proposed Amount</label>
+          <input type="text" id="modify-orig-amount" disabled />
+        </div>
+        <div class="form-group">
+          <label>Approved Refund Amount ($ USD)</label>
+          <input type="number" step="0.01" id="modify-new-amount" required />
+        </div>
+        <div class="form-group">
+          <label>Supervisor Notes / Reason for Adjustment</label>
+          <textarea id="modify-notes" rows="3" placeholder="Explain modification rationale (e.g. partial refund approved)..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModifyModal()">Cancel</button>
+          <button type="submit" class="btn btn-success">Approve Modified Action</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Reject Action Modal -->
+  <div class="modal-overlay hidden" id="modal-reject-action">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Reject Proposed Action</h3>
+        <button class="modal-close-btn" onclick="closeRejectModal()">✕</button>
+      </div>
+      <form id="reject-action-form" onsubmit="submitRejectDecision(event)">
+        <div class="form-group">
+          <label>Reason for Rejection</label>
+          <textarea id="reject-notes" rows="4" required placeholder="Explain why the proposed action is rejected (e.g. policy exception not warranted)..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeRejectModal()">Cancel</button>
+          <button type="submit" class="btn btn-danger">Confirm Rejection</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
