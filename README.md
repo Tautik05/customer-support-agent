@@ -1,4 +1,4 @@
-# NovaDesk AI Customer Support & Autonomous Resolution Engine
+# Customer Support & Autonomous Resolution Engine
 
 An enterprise-grade, agentic AI customer support system that automates ticket processing from **issue understanding to verified resolution**. Built with **FastAPI**, **PostgreSQL (Neon)**, **LangGraph**, **Groq (Llama-3.3-70B / Qwen-2.5)**, and **Model Context Protocol (MCP)** tool execution.
 
