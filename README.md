@@ -39,46 +39,31 @@ Built with **FastAPI**, **LangGraph**, **PostgreSQL (Neon)** / **SQLite**, **Gro
 
 ## 📐 Architecture & System Design
 
-### 1. High-Level Data Flow
+### 1. High-Level System Architecture
 
 ```mermaid
-sequenceDiagram
-    autonumber
-    actor Customer as Customer / Client
-    participant API as FastAPI Gateway
-    participant DB as System of Record (PostgreSQL/SQLite)
-    participant BG as Background Task / Workflow Engine
-    participant LLM as Groq LLM Engine
-    participant Rules as Business Rules Engine
-    participant MCP as MCP Tool Layer
-    actor Agent as Support Supervisor (HITL)
+flowchart TD
+    A[Customer Submits Ticket] --> B[FastAPI Gateway]
+    B -->|Return HTTP 201 Response| C[Customer Portal - Live Polling]
+    B -->|Dispatch Background Task| D[LangGraph Engine & Groq LLM]
+    
+    D --> E[MCP Tools & System of Record Lookup]
+    E --> F{Deterministic Business Rules Check}
+    
+    F -->|Policy Explanation / Standard Info| G[Direct Auto-Resolve & Send Email]
+    F -->|Financial Action e.g. Refund| H[Pause for Human Supervisor Approval]
+    F -->|VIP / High Risk / Complex Issue| I[Route to Support Specialist]
+    
+    H --> J[Agent Operations Dashboard]
+    J -->|Approve / Modify / Reject| K[Execute MCP Action]
+    
+    G --> L([Status: RESOLVED])
+    K --> L
+    I --> M([Status: ESCALATED])
 
-    Customer->>API: POST /api/system/tickets (Submit Ticket)
-    API->>DB: Persist Ticket (status: IN_PROGRESS)
-    API-->>Customer: Return HTTP 201 (Ticket Created & Processing)
-    API->>BG: Dispatch LangGraph Workflow Execution
-
-    rect rgb(240, 244, 255)
-        note over BG,MCP: LangGraph Execution Pipeline
-        BG->>LLM: 1. Classify Ticket Intent & Category
-        BG->>LLM: 2. Extract Entities & Disambiguate Order/Customer IDs
-        BG->>MCP: 3. Query System of Record (Account, Orders, Policy)
-        BG->>Rules: 4. Evaluate Deterministic Policy Guardrails
-        BG->>LLM: 5. Route Decision & Draft Customer Response
-    end
-
-    alt Consequential Action (e.g. Refund / Cancellation)
-        BG->>DB: Pause Execution (State: PENDING_APPROVAL)
-        Agent->>API: POST /api/workflow/approve/{ticket_id} (Approve / Modify / Reject)
-        API->>BG: Resume LangGraph Workflow with Supervisor Decision
-        BG->>MCP: Execute Action via System of Record Tool
-        BG->>DB: Finalize Ticket (status: RESOLVED)
-    else Direct Resolution / Policy Explanation
-        BG->>MCP: Dispatch Resolution & Email Notification
-        BG->>DB: Finalize Ticket (status: RESOLVED)
-    else Complex / Unresolvable Escalation
-        BG->>DB: Flag for Human Specialist (status: ESCALATED)
-    end
+    style D fill:#e6f3ff,stroke:#0066cc,stroke-width:2px
+    style F fill:#e6ffe6,stroke:#009933,stroke-width:2px
+    style H fill:#fff0f0,stroke:#cc0000,stroke-width:2px
 ```
 
 ---
